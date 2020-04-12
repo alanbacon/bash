@@ -66,3 +66,12 @@ class TestBash(unittest.TestCase):
         self.assertTrue((t2-t1).total_seconds() < 0.5)
         b.sync()
         self.assertEqual(b.stdout, b'1\n')
+
+    def test_iterate_over_results(self):
+        expecting = ['setup.py', 'tests.py']
+        b = bash('ls . | grep "\.py"')
+        results = b.results()
+        self.assertEqual(results, expecting)
+
+        iteratedResults = [result for result in b]
+        self.assertEqual(iteratedResults, expecting)
