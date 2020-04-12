@@ -60,6 +60,15 @@ To get a stripped, unicode string version of bash.stdout call value()::
     >>> b = bash('ls tests.py').value()
     u'tests.py'
 
+To get the results (separated by newlines) as a list::
+
+    >>> b = bash('ls . ').results()
+    ['bash.pyc', 'tests.pyc']
+
+or use the iterator directly::
+
+    >>> b = [res for res in bash('ls . ')]
+    ['bash.pyc', 'tests.pyc']
 
 Motivation
 ----------
