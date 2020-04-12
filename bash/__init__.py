@@ -21,7 +21,8 @@ class bash(object):
         self.stdout = None
         self.bash(*args, **kwargs)
 
-    def bash(self, cmd, env=None, stdout=PIPE, stderr=PIPE, timeout=None, sync=True):
+    def bash(self, *cmds, env=None, stdout=PIPE, stderr=PIPE, timeout=None, sync=True):
+        cmd = bash.unpackCommands(cmds)
         self.p = Popen(
             cmd, shell=True, stdout=stdout, stdin=PIPE, stderr=stderr, env=env
         )
@@ -71,3 +72,53 @@ class bash(object):
             return SPLIT_NEWLINE_REGEX.split(output)
         else:
             return []
+
+    @staticmethod
+    def areArgs(cmds):
+        return len(cmds) > 0
+
+    @staticmethod
+    def areMultipleArgs(cmds):
+        return len(cmds) > 1
+
+    @staticmethod
+    def commandChecker(cmds):
+        raisedError = None
+        try:
+            if not bash.areArgs(cmds):
+                raise SyntaxError('no arguments')
+
+            masterCommand = cmds[0]
+            if not isinstance(masterCommand, str):
+                raise SyntaxError('first argument to bash must be a command as a string')
+
+            if bash.areMultipleArgs(cmds):
+                arguments = cmds[1]
+                if not isinstance(arguments, list):
+                    raise SyntaxError('second argument to bash (if specified) must be a list of strings')
+                areStrings = list(map(lambda el : isinstance(el, str), arguments))
+                nonStrings = list(filter(lambda isString : not isString, areStrings))
+                if len(nonStrings):
+                    raise SyntaxError('one or more command arguments were not strings')
+
+            if len(cmds) > 2:
+                raise SyntaxError('more than two bash arguments given')
+
+        except SyntaxError as e:
+            raisedError = e
+
+        finally:
+            if isinstance(raisedError, Exception):
+                raise SyntaxError(
+                    str(raisedError) + '\n'
+                    'bash and xargs will accept one or two arguments: [command <str>, arguments <list of strings>]'
+                )
+
+    @staticmethod
+    def unpackCommands(cmds):
+        bash.commandChecker(cmds)
+        masterCommand = cmds[0]
+        arguments = cmds[1] if bash.areMultipleArgs(cmds) else []
+        seperator = ' '
+        argumentsString = seperator.join(arguments)
+        return masterCommand + ' ' + argumentsString
