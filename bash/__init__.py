@@ -1,3 +1,4 @@
+import re
 import sys
 from subprocess import PIPE, Popen
 SUBPROCESS_HAS_TIMEOUT = True
@@ -8,6 +9,8 @@ if sys.version_info < (3, 0):
         # You haven't got subprocess32 installed. If you're running 2.X this
         # will mean you don't have access to things like timeout
         SUBPROCESS_HAS_TIMEOUT = False
+
+SPLIT_NEWLINE_REGEX = re.compile(' *\n *')
 
 
 class bash(object):
@@ -58,3 +61,10 @@ class bash(object):
         if self.stdout:
             return self.stdout.strip().decode(encoding='UTF-8')
         return ''
+
+    def results(self):
+        output = self.stdout.decode(encoding='UTF-8').strip() or ''
+        if output:
+            return SPLIT_NEWLINE_REGEX.split(output)
+        else:
+            return []
