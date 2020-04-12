@@ -57,6 +57,9 @@ class bash(object):
     def __bool__(self):
         return bool(self.value())
 
+    def __iter__(self):
+        return self.results().__iter__()
+
     def value(self):
         if self.stdout:
             return self.stdout.strip().decode(encoding='UTF-8')
