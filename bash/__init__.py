@@ -43,6 +43,14 @@ class bash(object):
         self.code = self.p.returncode
         return self
 
+    def xargs(self, *cmds, **kwargs):
+        bash.commandChecker(cmds)
+        args = cmds[1] if bash.areMultipleArgs(cmds) else []
+        xargs = self.results()
+        passThroughCmds = [cmds[0], [*args, *xargs]]
+        print(passThroughCmds)
+        return self.bash(*passThroughCmds, **kwargs)
+
     def __repr__(self):
         return self.value()
 
