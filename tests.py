@@ -75,3 +75,65 @@ class TestBash(unittest.TestCase):
 
         iteratedResults = [result for result in b]
         self.assertEqual(iteratedResults, expecting)
+
+    def test_accept_args_list(self):
+        expecting = ['setup.py', 'tests.py']
+        b = bash('ls').bash('grep', ['-e', '"\.py"'])
+        results = b.results()
+        self.assertEqual(results, expecting)
+
+    def test_syntax_error_no_args(self):
+        with self.assertRaises(SyntaxError) as e:
+            bash()
+
+        self.assertEqual(
+            str(e.exception),
+            'no arguments\n' + 
+            'bash and xargs will accept one or two arguments: [command <str>, arguments <list of strings>]'
+        )
+
+    def test_syntax_error_not_string_arg(self):
+        with self.assertRaises(SyntaxError) as e:
+            bash(1)
+
+        self.assertEqual(
+            str(e.exception),
+            'first argument to bash must be a command as a string\n' + 
+            'bash and xargs will accept one or two arguments: [command <str>, arguments <list of strings>]'
+        )
+
+    def test_syntax_error_second_arg_not_list(self):
+        with self.assertRaises(SyntaxError) as e:
+            bash('a', 'b')
+
+        self.assertEqual(
+            str(e.exception),
+            'second argument to bash (if specified) must be a list of strings\n' + 
+            'bash and xargs will accept one or two arguments: [command <str>, arguments <list of strings>]'
+        )
+
+    def test_syntax_error_second_arg_not_list_of_strings(self):
+        with self.assertRaises(SyntaxError) as e:
+            bash('a', [1])
+
+        self.assertEqual(
+            str(e.exception),
+            'one or more command arguments were not strings\n' + 
+            'bash and xargs will accept one or two arguments: [command <str>, arguments <list of strings>]'
+        )
+
+    def test_syntax_error_second_arg_not_list_of_strings(self):
+        with self.assertRaises(SyntaxError) as e:
+            bash('a', ['b'], 'c')
+
+        self.assertEqual(
+            str(e.exception),
+            'more than two bash arguments given\n' + 
+            'bash and xargs will accept one or two arguments: [command <str>, arguments <list of strings>]'
+        )
+
+    def test_xargs(self):
+        expecting = 'setup.py:    author=\'Alex Couper\','
+        result = bash('ls').bash('grep', ['-e', '"\.py"']).xargs('grep', ['"author=\'Alex Couper\'"']).value()
+        self.assertEqual(result, expecting)
+
