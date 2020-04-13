@@ -40,6 +40,7 @@ Also chain using the ``xargs`` function to map the results of the previous comma
     'setup.py:    author=\'Alex Couper\','
 
 Equivalently::
+
     >>> files = [f for f in bash('ls').bash('grep "\.py"')]
     >>> bash('grep "author=\'Alex Couper\'"', files)
     'setup.py:    author=\'Alex Couper\','
