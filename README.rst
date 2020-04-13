@@ -22,11 +22,28 @@ Run commands as you would in bash::
     bash.pyc
     tests.pyc
 
-Chain commands for the same effect::
+Pass in arguments as an array::
+
+    >>> bash('ls', ['.'])
+    bash.pyc
+    tests.pyc
+
+Chain commands for the same pipe effect as above::
 
     >>> bash('ls . ').bash('grep ".pyc"')
     bash.pyc
     tests.pyc
+
+Also chain using the ``xargs`` function to map the results of the previous command onto a new command::
+
+    >>> bash('ls').bash('grep "\.py"').xargs('grep "author=\'Alex Couper\'"')
+    'setup.py:    author=\'Alex Couper\','
+
+Equivalently::
+    >>> files = [f for f in bash('ls').bash('grep "\.py"')]
+    >>> bash('grep "author=\'Alex Couper\'"', files)
+    'setup.py:    author=\'Alex Couper\','
+
 
 This becomes increasingly useful if you later need to reuse one such command::
 
